@@ -16,6 +16,7 @@ const AppNavigator = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
+        tabBarInactiveBackgroundColor: COLORS.white,
       }}>
       <Tab.Screen
         name="Home"
@@ -142,7 +143,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 5,
     borderRadius: 30,
-    backgroundColor: COLORS.white,
+    // backgroundColor: COLORS.white,
+    backgroundColor: 'rgba(256, 256, 256, 0.2)',
   },
   label: {
     color: COLORS.gray,
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
     width: 75,
     borderRadius: 75 / 2,
     marginBottom: 20,
-    backgroundColor: '#F6F7EB',
+    // backgroundColor: 'rgba(256, 256, 256, 0.1)',
   },
   selectedIcon: {
     height: 55,

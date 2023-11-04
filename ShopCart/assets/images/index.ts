@@ -13,6 +13,9 @@ const IMAGES = {
   heartRed: require('./heart_red.png'),
   heartWhite: require('./heart_white.png'),
   addBtn: require('./addBtn.png'),
+  backArrow: require('./backCircleArrow.png'),
+  plus: require('./plus.png'),
+  minus: require('./minus.png'),
 };
 
 export default IMAGES;

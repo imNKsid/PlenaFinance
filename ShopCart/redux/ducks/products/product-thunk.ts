@@ -23,6 +23,8 @@ const fetchAllProducts = createAsyncThunk(
 const addToFav = createAsyncThunk(
   'addToFav',
   async (item: any, {rejectWithValue, dispatch}) => {
+    console.log('item =>', item);
+
     if (item?.title) {
       return item;
     }

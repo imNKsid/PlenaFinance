@@ -15,6 +15,7 @@ import ProductThunk from '../redux/ducks/products/product-thunk';
 import {COLORS, IMAGES} from '../assets';
 import scaler from '../utils/scaler';
 import ProductSelector from '../redux/ducks/products/product-selector';
+import {StackActions, useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -22,13 +23,13 @@ const HomeScreen = () => {
   const productsList = ProductSelector.productsData();
 
   useEffect(() => {
-    dispatch(ProductThunk.fetchAllProducts());
+    dispatch<any>(ProductThunk.fetchAllProducts());
   }, []);
 
   return (
     <View style={styles.mainContainer}>
       <StatusBar backgroundColor={COLORS.primaryBlue} />
-      <TopSection />
+      <TopSection productList={productsList} />
       <BottomSection productsList={productsList} />
     </View>
   );
@@ -36,7 +37,9 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-const TopSection = () => {
+const TopSection = ({productList}: any) => {
+  const [searchText, setSearchText] = useState('');
+
   return (
     <View style={styles.headerContainer}>
       <View style={styles.nameNcart}>
@@ -47,9 +50,14 @@ const TopSection = () => {
       <View style={styles.searchBar}>
         <Image source={IMAGES.search} style={styles.searchIcon} />
         <TextInput
+          value={searchText}
           placeholder="Search Products or store"
           placeholderTextColor={COLORS.darkGray}
           style={styles.searchInput}
+          returnKeyType="done"
+          onChangeText={t => {
+            setSearchText(t);
+          }}
         />
       </View>
 
@@ -74,39 +82,65 @@ const TopSection = () => {
 };
 
 const BottomSection = ({productsList}: any) => {
-  const [heartSelected, setHeartSelected] = useState(false);
+  const navigation = useNavigation();
 
-  const renderProducts = ({item, index}: any) => {
+  const toggleHeart = (item: any) => {
+    if (item?.favorite) {
+      dispatch<any>(ProductThunk.removeFromFav(item));
+    } else {
+      dispatch<any>(ProductThunk.addToFav(item));
+    }
+  };
+
+  const toggleAdd = (item: any) => {
+    // if (item?.favorite) {
+    //   dispatch<any>(ProductThunk.removeFromFav(item));
+    // } else {
+    //   dispatch<any>(ProductThunk.addToFav(item));
+    // }
+  };
+
+  const renderProducts = ({item, index}: {item: any; index: number}) => {
     return (
-      <View
-        style={[
-          styles.productItem,
-          index === productsList.length - 2 || index === productsList.length - 1
-            ? {marginBottom: height * 0.25}
-            : {},
-        ]}>
-        <TouchableOpacity
-          onPress={() => setHeartSelected(!heartSelected)}
-          hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
-          {heartSelected ? (
-            <Image source={IMAGES.heartRed} style={styles.heartIcon} />
-          ) : (
-            <Image source={IMAGES.heartWhite} style={styles.heartIcon} />
-          )}
-        </TouchableOpacity>
-        <Image source={{uri: item?.thumbnail}} style={styles.productImg} />
-        <View style={styles.productDetails}>
-          <View>
-            <Text style={styles.itemPrice}>
-              {item?.price ? `$${item.price}` : 0}
-            </Text>
-            <Text numberOfLines={3} style={styles.itemTitle}>
-              {item?.title ? item.title : ''}
-            </Text>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.dispatch(StackActions.push('ProductDetails', {item}))
+        }>
+        <View
+          style={[
+            styles.productItem,
+            index === productsList.length - 2 ||
+            index === productsList.length - 1
+              ? {marginBottom: height * 0.25}
+              : {},
+          ]}>
+          <TouchableOpacity
+            onPress={() => toggleHeart(item)}
+            hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
+            {item?.favorite ? (
+              <Image source={IMAGES.heartRed} style={styles.heartIcon} />
+            ) : (
+              <Image source={IMAGES.heartWhite} style={styles.heartIcon} />
+            )}
+          </TouchableOpacity>
+          <Image source={{uri: item?.thumbnail}} style={styles.productImg} />
+          <View style={styles.productDetails}>
+            <View>
+              <Text style={styles.itemPrice}>
+                {item?.price ? `$${item.price}` : 0}
+              </Text>
+              <Text numberOfLines={3} style={styles.itemTitle}>
+                {item?.title ? item.title : ''}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => toggleAdd(item)}
+              hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
+              <Image source={IMAGES.addBtn} style={styles.add} />
+            </TouchableOpacity>
           </View>
-          <Image source={IMAGES.addBtn} style={styles.add} />
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -117,6 +151,10 @@ const BottomSection = ({productsList}: any) => {
         <FlatList
           showsVerticalScrollIndicator={false}
           numColumns={2}
+          columnWrapperStyle={{
+            justifyContent: 'space-between',
+            marginLeft: 20,
+          }}
           data={productsList}
           renderItem={renderProducts}
         />
@@ -210,12 +248,12 @@ const styles = StyleSheet.create({
     // paddingBottom: height * 0.25,
   },
   productItem: {
-    width: width * 0.415,
+    width: width * 0.43,
     // height: height * 0.25,
     borderRadius: 10,
-    backgroundColor: COLORS.lightGray,
-    marginLeft: 20,
-    marginTop: 10,
+    backgroundColor: COLORS.primaryGray,
+    // marginLeft: 20,
+    marginTop: 20,
     paddingBottom: 10,
   },
   heartIcon: {

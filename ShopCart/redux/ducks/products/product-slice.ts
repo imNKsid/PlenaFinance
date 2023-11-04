@@ -6,7 +6,7 @@ const initialState = {
   fetchProductLoading: false,
   productsData: [],
 
-  favItems: [] as any[],
+  favItems: [],
 };
 
 const ProductSlice = createSlice({
@@ -17,15 +17,27 @@ const ProductSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(ProductThunk.fetchAllProducts.pending, state => {
-        state.fetchProductSuccess = false;
-        state.fetchProductLoading = true;
-        state.productsData = [];
-      })
+      // .addCase(ProductThunk.fetchAllProducts.pending, state => {
+      //   state.fetchProductSuccess = false;
+      //   state.fetchProductLoading = true;
+      //   state.productsData = [];
+      // })
       .addCase(ProductThunk.fetchAllProducts.fulfilled, (state, action) => {
         state.fetchProductSuccess = true;
         state.fetchProductLoading = false;
-        state.productsData = action.payload;
+
+        let arr = action.payload;
+
+        if (
+          state.productsData.length === 0 ||
+          !state.productsData[0].hasOwnProperty('favorite')
+        ) {
+          console.log('Executing');
+          arr = arr.map((item: any) => ({...item, favorite: false}));
+          state.favItems = [];
+        }
+
+        state.productsData = arr;
       })
       .addCase(ProductThunk.fetchAllProducts.rejected, state => {
         state.fetchProductSuccess = false;
@@ -34,16 +46,32 @@ const ProductSlice = createSlice({
       })
 
       .addCase(ProductThunk.addToFav.fulfilled, (state, action) => {
-        state.favItems = [...state.favItems, action.payload];
+        const tempArr = state.favItems as any;
+        tempArr.push(action.payload);
+        state.favItems = tempArr;
+
+        for (let i = 0; i < state.productsData.length; i++) {
+          if (state.productsData[i].id === action.payload.id) {
+            state.productsData[i].favorite = true;
+            break;
+          }
+        }
       })
 
       .addCase(ProductThunk.removeFromFav.fulfilled, (state, action) => {
-        const itemName = action.payload?.title;
+        const itemName = action.payload.title;
         const updatedProducts = state.favItems.filter(
-          item => item.title !== itemName,
+          (item: any) => item.title !== itemName,
         );
 
         state.favItems = updatedProducts;
+
+        for (let i = 0; i < state.productsData.length; i++) {
+          if (state.productsData[i].id === action.payload.id) {
+            state.productsData[i].favorite = false;
+            break;
+          }
+        }
       });
   },
 });
