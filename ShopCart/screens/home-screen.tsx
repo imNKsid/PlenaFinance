@@ -9,18 +9,22 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
+
+import {StackActions, useNavigation} from '@react-navigation/native';
+import Toast from 'react-native-simple-toast';
+
 import {dispatch} from '../redux/store/store';
 import ProductThunk from '../redux/ducks/products/product-thunk';
 import {COLORS, IMAGES} from '../assets';
 import scaler from '../utils/scaler';
 import ProductSelector from '../redux/ducks/products/product-selector';
-import {StackActions, useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
 const HomeScreen = () => {
   const productsList = ProductSelector.productsData();
+  const cartData = ProductSelector.cartData();
 
   useEffect(() => {
     dispatch<any>(ProductThunk.fetchAllProducts());
@@ -29,7 +33,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.mainContainer}>
       <StatusBar backgroundColor={COLORS.primaryBlue} />
-      <TopSection productList={productsList} />
+      <TopSection cartData={cartData} />
       <BottomSection productsList={productsList} />
     </View>
   );
@@ -37,14 +41,27 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-const TopSection = ({productList}: any) => {
+const TopSection = ({cartData}: any) => {
+  const navigation = useNavigation();
   const [searchText, setSearchText] = useState('');
+
+  console.log('cartData =>', cartData);
 
   return (
     <View style={styles.headerContainer}>
       <View style={styles.nameNcart}>
         <Text style={styles.name}>Hey, Rahul</Text>
-        <Image source={IMAGES.cart} style={styles.cartImg} />
+        <TouchableOpacity
+          onPress={() => navigation.dispatch(StackActions.push('Cart'))}
+          hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
+          {/* style={{flexDirection: 'row'}}> */}
+          <Image source={IMAGES.cart} style={styles.cartImg} />
+          {cartData?.length > 0 ? (
+            <View style={styles.cartItemsView}>
+              <Text style={styles.cartItems}>{cartData.length}</Text>
+            </View>
+          ) : null}
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchBar}>
@@ -93,11 +110,8 @@ const BottomSection = ({productsList}: any) => {
   };
 
   const toggleAdd = (item: any) => {
-    // if (item?.favorite) {
-    //   dispatch<any>(ProductThunk.removeFromFav(item));
-    // } else {
-    //   dispatch<any>(ProductThunk.addToFav(item));
-    // }
+    Toast.show('Product added to Cart', Toast.SHORT);
+    dispatch<any>(ProductThunk.addToCart(item));
   };
 
   const renderProducts = ({item, index}: {item: any; index: number}) => {
@@ -125,19 +139,21 @@ const BottomSection = ({productsList}: any) => {
           </TouchableOpacity>
           <Image source={{uri: item?.thumbnail}} style={styles.productImg} />
           <View style={styles.productDetails}>
-            <View>
-              <Text style={styles.itemPrice}>
-                {item?.price ? `$${item.price}` : 0}
-              </Text>
-              <Text numberOfLines={3} style={styles.itemTitle}>
-                {item?.title ? item.title : ''}
-              </Text>
+            <View style={styles.imgNtext}>
+              <View>
+                <Text style={styles.itemPrice}>
+                  {item?.price ? `$${item.price}` : 0}
+                </Text>
+                <Text numberOfLines={3} style={styles.itemTitle}>
+                  {item?.title ? item.title : ''}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => toggleAdd(item)}
+                hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
+                <Image source={IMAGES.addBtn} style={styles.add} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={() => toggleAdd(item)}
-              hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
-              <Image source={IMAGES.addBtn} style={styles.add} />
-            </TouchableOpacity>
           </View>
         </View>
       </TouchableOpacity>
@@ -186,6 +202,21 @@ const styles = StyleSheet.create({
   cartImg: {
     width: 20,
     height: 20,
+  },
+  cartItemsView: {
+    width: 15,
+    height: 15,
+    borderRadius: 15 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.yellow,
+    position: 'absolute',
+    left: 15,
+    top: -7,
+  },
+  cartItems: {
+    fontSize: scaler(10),
+    color: COLORS.white,
   },
   searchBar: {
     borderRadius: 30,
@@ -245,14 +276,12 @@ const styles = StyleSheet.create({
   },
   products: {
     marginLeft: -20,
-    // paddingBottom: height * 0.25,
   },
   productItem: {
     width: width * 0.43,
-    // height: height * 0.25,
+    height: height * 0.29,
     borderRadius: 10,
     backgroundColor: COLORS.primaryGray,
-    // marginLeft: 20,
     marginTop: 20,
     paddingBottom: 10,
   },
@@ -271,9 +300,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   productDetails: {
-    marginTop: 40,
+    position: 'absolute',
+    bottom: 20,
     marginHorizontal: 20,
+    width: width * 0.33,
+  },
+  imgNtext: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   itemPrice: {

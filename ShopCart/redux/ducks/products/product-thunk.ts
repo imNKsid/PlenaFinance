@@ -23,8 +23,6 @@ const fetchAllProducts = createAsyncThunk(
 const addToFav = createAsyncThunk(
   'addToFav',
   async (item: any, {rejectWithValue, dispatch}) => {
-    console.log('item =>', item);
-
     if (item?.title) {
       return item;
     }
@@ -42,10 +40,40 @@ const removeFromFav = createAsyncThunk(
   },
 );
 
+const addToCart = createAsyncThunk(
+  'addToCart',
+  async (item: any, {rejectWithValue, dispatch}) => {
+    if (item?.title) {
+      return item;
+    }
+    return {};
+  },
+);
+
+const removeFromCart = createAsyncThunk(
+  'removeFromCart',
+  async (item: any, {rejectWithValue, dispatch}) => {
+    if (item?.title) {
+      return item;
+    }
+    return {};
+  },
+);
+
+const removeAllFromCart = createAsyncThunk(
+  'removeAllFromCart',
+  async (_, {rejectWithValue, dispatch}) => {
+    return true;
+  },
+);
+
 const ProductThunk = {
   fetchAllProducts,
   addToFav,
   removeFromFav,
+  addToCart,
+  removeFromCart,
+  removeAllFromCart,
 };
 
 export default ProductThunk;

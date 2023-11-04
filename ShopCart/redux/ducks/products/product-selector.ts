@@ -13,6 +13,16 @@ const favData = (): any => {
   return favItems;
 };
 
-const ProductSelector = {productsData, favData};
+const cartData = (): any => {
+  const cartItems = useSelector((state: RootState) => state.product.cartItems);
+  return cartItems;
+};
+
+const cartPrice = (): any => {
+  const cartPrice = useSelector((state: RootState) => state.product.cartPrice);
+  return cartPrice;
+};
+
+const ProductSelector = {productsData, favData, cartData, cartPrice};
 
 export default ProductSelector;
