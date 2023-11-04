@@ -7,7 +7,12 @@ const IMAGES = {
   fav_selected: require('./heart_selected.png'),
   more_unselected: require('./more_unselected.png'),
   more_selected: require('./more_selected.png'),
-  black_circle: require('./category_circle.png'),
+  cart: require('./cart.png'),
+  search: require('./search.png'),
+  dropdown: require('./dropdown.png'),
+  heartRed: require('./heart_red.png'),
+  heartWhite: require('./heart_white.png'),
+  addBtn: require('./addBtn.png'),
 };
 
 export default IMAGES;
