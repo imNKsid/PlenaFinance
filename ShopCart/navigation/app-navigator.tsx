@@ -140,9 +140,8 @@ const styles = StyleSheet.create({
   tabBar: {
     height: DeviceInfo.hasNotch() ? 103 : 65,
     position: 'absolute',
-    bottom: 0,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    bottom: 5,
+    borderRadius: 30,
     backgroundColor: COLORS.white,
   },
   label: {
@@ -156,7 +155,7 @@ const styles = StyleSheet.create({
     width: 75,
     borderRadius: 75 / 2,
     marginBottom: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#F6F7EB',
   },
   selectedIcon: {
     height: 55,

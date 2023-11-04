@@ -1,7 +1,13 @@
 import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
+import {dispatch} from '../redux/store/store';
+import ProductThunk from '../redux/ducks/products/product-thunk';
 
 const HomeScreen = () => {
+  useEffect(() => {
+    dispatch(ProductThunk.fetchAllProducts());
+  }, []);
+
   return (
     <SafeAreaView>
       <Text>HomeScreen</Text>
