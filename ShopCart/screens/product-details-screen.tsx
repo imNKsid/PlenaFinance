@@ -25,6 +25,7 @@ import {CustomButton} from '../components';
 import {dispatch} from '../redux/store/store';
 import ProductThunk from '../redux/ducks/products/product-thunk';
 import ProductSelector from '../redux/ducks/products/product-selector';
+import DeviceInfo from 'react-native-device-info';
 
 const {width, height} = Dimensions.get('window');
 
@@ -50,109 +51,19 @@ const ProductDetails = () => {
     }
   }, [routes?.params?.item]);
 
-  console.log('productItem =>', productItem);
-
-  const toggleAdd = (item: any) => {
-    Toast.show('Product added to Cart', Toast.SHORT);
-    dispatch<any>(ProductThunk.addToCart(item));
-  };
-
-  const renderImages = ({item}: {item: string}) => {
-    return (
-      <View>
-        <Image source={{uri: item}} style={styles.productImage} />
-      </View>
-    );
-  };
   return (
     <View style={styles.mainContainer}>
       <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
-        <View style={{paddingHorizontal: 20}}>
-          <View style={styles.headerIcons}>
-            <TouchableOpacity
-              onPress={() => navigation.dispatch(StackActions.pop())}>
-              <Image source={IMAGES.backArrow} style={styles.backIcon} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.dispatch(StackActions.push('Cart'))}
-              hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
-              {/* style={{flexDirection: 'row'}}> */}
-              <Image source={IMAGES.cart} style={styles.cartIcon} />
-              {cartData?.length > 0 ? (
-                <View style={styles.cartItemsView}>
-                  <Text style={styles.cartItems}>{cartData.length}</Text>
-                </View>
-              ) : null}
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.category}>{productItem?.category}</Text>
-          <Text style={styles.itemName}>{productItem?.title}</Text>
-          <StarRatingDisplay
-            rating={productItem?.rating ? productItem.rating : 0}
-            starSize={15}
-            color={COLORS.yellow}
-            style={{justifyContent: 'flex-start'}}
-            starStyle={{marginLeft: -2}}
-          />
+        <View style={styles.subContainer}>
+          <RenderTop cartData={cartData} productItem={productItem} />
         </View>
+
         <View style={styles.imageBanner}>
-          {productItem?.images ? (
-            productItem.images?.length > 1 ? (
-              <SwiperFlatList
-                autoplay
-                autoplayLoop
-                index={0}
-                showPagination
-                data={productItem?.images}
-                renderItem={renderImages}
-                paginationStyle={styles.pagination}
-                paginationStyleItem={styles.paginationItem}
-                paginationActiveColor={COLORS.yellow}
-                paginationDefaultColor={COLORS.gray}
-              />
-            ) : (
-              renderImages({item: productItem.images[0]})
-            )
-          ) : (
-            renderImages({item: productItem.thumbnail})
-          )}
+          <RenderSwiperImages productItem={productItem} />
         </View>
 
-        <View style={{paddingHorizontal: 20}}>
-          <View style={styles.priceContainer}>
-            <View style={styles.pricePerKg}>
-              <Text style={styles.priceBold}>{`$${productItem?.price}`}</Text>
-              <Text style={[styles.priceBold, styles.priceThin]}>{'/KG'}</Text>
-            </View>
-            <View style={styles.discountView}>
-              <Text
-                style={[
-                  styles.priceBold,
-                  styles.priceThin,
-                  styles.discountText,
-                ]}>{`$${productItem?.discountPercentage} OFF`}</Text>
-            </View>
-          </View>
-
-          <View style={styles.btnContainer}>
-            <CustomButton
-              isFilled={false}
-              title={'Add To Cart'}
-              onClick={() => toggleAdd(productItem)}
-            />
-            <CustomButton
-              isFilled={true}
-              title={'Buy Now'}
-              onClick={() =>
-                navigation.dispatch(
-                  StackActions.push('BuyNow', {item: productItem}),
-                )
-              }
-            />
-          </View>
-
-          <Text style={styles.detailsHeading}>{'Details'}</Text>
-          <Text style={styles.details}>{productItem?.description}</Text>
+        <View style={styles.subContainer}>
+          <RenderBottom productItem={productItem} />
         </View>
       </ScrollView>
     </View>
@@ -161,14 +72,123 @@ const ProductDetails = () => {
 
 export default ProductDetails;
 
+const RenderTop = ({cartData, productItem}: any) => {
+  const navigation = useNavigation();
+  return (
+    <>
+      <View style={styles.headerIcons}>
+        <TouchableOpacity
+          onPress={() => navigation.dispatch(StackActions.pop())}
+          hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
+          <Image source={IMAGES.backArrow} style={styles.backIcon} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.dispatch(StackActions.push('Cart'))}
+          hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
+          <Image source={IMAGES.cart} style={styles.cartIcon} />
+          {cartData?.length > 0 ? (
+            <View style={styles.cartItemsView}>
+              <Text style={styles.cartItems}>{cartData.length}</Text>
+            </View>
+          ) : null}
+        </TouchableOpacity>
+      </View>
+      <Text style={styles.category}>{productItem?.category}</Text>
+      <Text style={styles.itemName}>{productItem?.title}</Text>
+      <StarRatingDisplay
+        rating={productItem?.rating ? productItem.rating : 0}
+        starSize={15}
+        color={COLORS.yellow}
+        style={{justifyContent: 'flex-start'}}
+        starStyle={{marginLeft: -2}}
+      />
+    </>
+  );
+};
+
+const RenderSwiperImages = ({productItem}: any) => {
+  const renderImages = ({item}: {item: string}) => {
+    return <Image source={{uri: item}} style={styles.productImage} />;
+  };
+
+  return productItem?.images ? (
+    productItem.images?.length > 1 ? (
+      <SwiperFlatList
+        autoplay
+        autoplayLoop
+        index={0}
+        showPagination
+        data={productItem?.images}
+        renderItem={renderImages}
+        paginationStyle={styles.pagination}
+        paginationStyleItem={styles.paginationItem}
+        paginationActiveColor={COLORS.yellow}
+        paginationDefaultColor={COLORS.gray}
+      />
+    ) : (
+      renderImages({item: productItem.images[0]})
+    )
+  ) : (
+    renderImages({item: productItem.thumbnail})
+  );
+};
+
+const RenderBottom = ({productItem}: any) => {
+  const navigation = useNavigation();
+
+  const toggleAdd = (item: any) => {
+    Toast.show('Product added to Cart', Toast.SHORT);
+    dispatch<any>(ProductThunk.addToCart(item));
+  };
+
+  return (
+    <>
+      <View style={styles.priceContainer}>
+        <View style={styles.pricePerKg}>
+          <Text style={styles.priceBold}>{`$${productItem?.price}`}</Text>
+          <Text style={[styles.priceBold, styles.priceThin]}>{'/KG'}</Text>
+        </View>
+        <View style={styles.discountView}>
+          <Text
+            style={[
+              styles.priceBold,
+              styles.priceThin,
+              styles.discountText,
+            ]}>{`$${productItem?.discountPercentage} OFF`}</Text>
+        </View>
+      </View>
+
+      <View style={styles.btnContainer}>
+        <CustomButton
+          isFilled={false}
+          title={'Add To Cart'}
+          onClick={() => toggleAdd(productItem)}
+        />
+        <CustomButton
+          isFilled={true}
+          title={'Buy Now'}
+          onClick={() =>
+            navigation.dispatch(
+              StackActions.push('BuyNow', {item: productItem}),
+            )
+          }
+        />
+      </View>
+
+      <Text style={styles.detailsHeading}>{'Details'}</Text>
+      <Text style={styles.details}>{productItem?.description}</Text>
+    </>
+  );
+};
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: COLORS.white,
     paddingVertical: 30,
-    // paddingHorizontal: 20,
   },
+  subContainer: {paddingHorizontal: 20},
   headerIcons: {
+    marginTop: DeviceInfo.hasNotch() ? 20 : 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -224,7 +244,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: width * 0.5,
+    width: DeviceInfo.hasNotch() ? width * 0.44 : width * 0.5,
     alignItems: 'center',
   },
   pricePerKg: {

@@ -21,115 +21,42 @@ const AppNavigator = () => {
       <Tab.Screen
         name="Home"
         component={HomeStack}
-        options={{
-          tabBarLabel: ({focused}) => (
-            <Text style={styles.label}>{focused ? '' : 'Home'}</Text>
-          ),
-          tabBarIcon: ({focused}) => (
-            <>
-              {focused ? (
-                <View style={styles.selectedTab}>
-                  <Image
-                    source={IMAGES.home_selected}
-                    style={styles.selectedIcon}
-                  />
-                </View>
-              ) : (
-                <Image
-                  source={IMAGES.home_unselected}
-                  style={styles.unSelectedIcon}
-                />
-              )}
-            </>
-          ),
-        }}
+        options={tabOptions(
+          IMAGES.home_selected,
+          IMAGES.home_unselected,
+          'Home',
+          false,
+        )}
       />
       <Tab.Screen
         name="Category"
         component={CategoryScreen}
-        options={{
-          tabBarLabel: ({focused}) => (
-            <Text style={styles.label}>{focused ? '' : 'Categories'}</Text>
-          ),
-          tabBarLabelStyle: styles.label,
-          tabBarIcon: ({focused}) => (
-            <>
-              {focused ? (
-                <View style={styles.selectedTab}>
-                  <View style={styles.blackCircle}>
-                    <Image
-                      source={IMAGES.category_selected}
-                      style={styles.categorySelectedIcon}
-                    />
-                  </View>
-                </View>
-              ) : (
-                <Image
-                  source={IMAGES.category_unselected}
-                  style={styles.unSelectedIcon}
-                />
-              )}
-            </>
-          ),
-        }}
+        options={tabOptions(
+          IMAGES.category_selected,
+          IMAGES.category_unselected,
+          'Categories',
+          true,
+        )}
       />
       <Tab.Screen
         name="Favourite"
         component={FavouriteScreen}
-        options={{
-          tabBarLabel: ({focused}) => (
-            <Text style={styles.label}>{focused ? '' : 'Favourite'}</Text>
-          ),
-          tabBarLabelStyle: styles.label,
-          tabBarIcon: ({focused}) => (
-            <>
-              {focused ? (
-                <View style={styles.selectedTab}>
-                  <View style={styles.blackCircle}>
-                    <Image
-                      source={IMAGES.fav_selected}
-                      style={styles.categorySelectedIcon}
-                    />
-                  </View>
-                </View>
-              ) : (
-                <Image
-                  source={IMAGES.fav_unselected}
-                  style={styles.unSelectedIcon}
-                />
-              )}
-            </>
-          ),
-        }}
+        options={tabOptions(
+          IMAGES.fav_selected,
+          IMAGES.fav_unselected,
+          'Favourite',
+          true,
+        )}
       />
       <Tab.Screen
         name="More"
         component={MoreScreen}
-        options={{
-          tabBarLabel: ({focused}) => (
-            <Text style={styles.label}>{focused ? '' : 'More'}</Text>
-          ),
-          tabBarLabelStyle: styles.label,
-          tabBarIcon: ({focused}) => (
-            <>
-              {focused ? (
-                <View style={styles.selectedTab}>
-                  <View style={styles.blackCircle}>
-                    <Image
-                      source={IMAGES.more_selected}
-                      style={styles.categorySelectedIcon}
-                    />
-                  </View>
-                </View>
-              ) : (
-                <Image
-                  source={IMAGES.more_unselected}
-                  style={styles.unSelectedIcon}
-                />
-              )}
-            </>
-          ),
-        }}
+        options={tabOptions(
+          IMAGES.more_selected,
+          IMAGES.more_unselected,
+          'More',
+          true,
+        )}
       />
     </Tab.Navigator>
   );
@@ -137,14 +64,42 @@ const AppNavigator = () => {
 
 export default AppNavigator;
 
+const tabOptions = (
+  iconActive: any,
+  iconInactive: any,
+  labelText: string,
+  showBlackCircle: boolean,
+) => ({
+  tabBarLabel: ({focused}: {focused: boolean}) => (
+    <Text style={styles.label}>{focused ? '' : labelText}</Text>
+  ),
+  tabBarLabelStyle: styles.label,
+  tabBarIcon: ({focused}: {focused: boolean}) => (
+    <>
+      {focused ? (
+        <View style={styles.selectedTab}>
+          {showBlackCircle ? (
+            <View style={styles.blackCircle}>
+              <Image source={iconActive} style={styles.categorySelectedIcon} />
+            </View>
+          ) : (
+            <Image source={iconActive} style={styles.selectedIcon} />
+          )}
+        </View>
+      ) : (
+        <Image source={iconInactive} style={styles.unSelectedIcon} />
+      )}
+    </>
+  ),
+});
+
 const styles = StyleSheet.create({
   tabBar: {
     height: DeviceInfo.hasNotch() ? 103 : 65,
     position: 'absolute',
     bottom: 5,
     borderRadius: 30,
-    // backgroundColor: COLORS.white,
-    backgroundColor: 'rgba(256, 256, 256, 0.2)',
+    backgroundColor: COLORS.white,
   },
   label: {
     color: COLORS.gray,
@@ -157,7 +112,7 @@ const styles = StyleSheet.create({
     width: 75,
     borderRadius: 75 / 2,
     marginBottom: 20,
-    // backgroundColor: 'rgba(256, 256, 256, 0.1)',
+    backgroundColor: 'rgba(256, 256, 256, 0.1)',
   },
   selectedIcon: {
     height: 55,

@@ -18,6 +18,7 @@ import {dispatch} from '../redux/store/store';
 import ProductThunk from '../redux/ducks/products/product-thunk';
 import {COLORS, IMAGES} from '../assets';
 import scaler from '../utils/scaler';
+import DeviceInfo from 'react-native-device-info';
 
 const {width, height} = Dimensions.get('window');
 
@@ -25,9 +26,6 @@ const Cart = () => {
   const navigation = useNavigation();
 
   const cartData = ProductSelector.cartData();
-  const cartPrice = ProductSelector.cartPrice();
-
-  console.log('cartData =>', cartData, '\n', cartPrice, cartData.length);
 
   const renderItem = ({item}: any) => {
     return (
@@ -62,43 +60,6 @@ const Cart = () => {
     );
   };
 
-  const checkout = () => {
-    Toast.show('Successfully Purchased', Toast.SHORT);
-    dispatch<any>(ProductThunk.removeAllFromCart());
-    navigation.dispatch(StackActions.popToTop());
-  };
-
-  const RenderFooter = () => {
-    return (
-      <View
-        style={[
-          cartData.length > 5
-            ? styles.totalAlignWithFlatList
-            : styles.totalStickToBottom,
-          styles.totalContainer,
-        ]}>
-        <View style={styles.cartItem}>
-          <Text style={styles.label}>{'Subtotal'}</Text>
-          <Text style={styles.itemName}>{`$${cartPrice}`}</Text>
-        </View>
-        <View style={styles.cartItem}>
-          <Text style={styles.label}>{'Delivery'}</Text>
-          <Text style={styles.itemName}>{`$2`}</Text>
-        </View>
-        <View style={styles.cartItem}>
-          <Text style={styles.label}>{'Total'}</Text>
-          <Text style={styles.itemName}>{`$${cartPrice + 2}`}</Text>
-        </View>
-        <CustomButton
-          title={'Proceed to Checkout'}
-          isFilled={true}
-          onClick={checkout}
-          buttonStyles={styles.btnStyle}
-        />
-      </View>
-    );
-  };
-
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerIcons}>
@@ -115,36 +76,88 @@ const Cart = () => {
           showsVerticalScrollIndicator={false}
           data={cartData}
           renderItem={renderItem}
-          ListEmptyComponent={
-            <View style={styles.noDataFound}>
-              <Text style={styles.noDataText}>
-                {'Nothing in Cart. Go add some!'}
-              </Text>
-            </View>
-          }
+          ListEmptyComponent={RenderEmptyComponent}
           ListFooterComponent={
-            <>{cartData.length > 5 ? RenderFooter() : null}</>
+            <>
+              {cartData.length > 4 ? (
+                <RenderFooter cartData={cartData} />
+              ) : null}
+            </>
           }
           ItemSeparatorComponent={() => <View style={styles.lineBreak} />}
         />
       </View>
-      {cartData.length > 5 ? null : RenderFooter()}
+      {cartData.length > 4 ? null : <RenderFooter cartData={cartData} />}
     </View>
   );
 };
 
 export default Cart;
 
+const RenderEmptyComponent = () => {
+  return (
+    <View style={styles.noDataFound}>
+      <Text style={styles.noDataText}>{'Nothing in Cart. Go add some!'}</Text>
+    </View>
+  );
+};
+
+const RenderFooter = ({cartData}: any) => {
+  const navigation = useNavigation();
+
+  const cartPrice = ProductSelector.cartPrice();
+
+  const checkout = () => {
+    Toast.show('Successfully Purchased', Toast.SHORT);
+    dispatch<any>(ProductThunk.removeAllFromCart());
+    navigation.dispatch(StackActions.popToTop());
+  };
+
+  return (
+    <>
+      {cartData.length > 0 ? (
+        <View
+          style={[
+            cartData.length > 4
+              ? styles.totalAlignWithFlatList
+              : styles.totalStickToBottom,
+            styles.totalContainer,
+          ]}>
+          <View style={[styles.cartItem, styles.priceView]}>
+            <Text style={styles.label}>{'Subtotal'}</Text>
+            <Text style={styles.itemName}>{`$${cartPrice}`}</Text>
+          </View>
+          <View style={[styles.cartItem, styles.priceView]}>
+            <Text style={styles.label}>{'Delivery'}</Text>
+            <Text style={styles.itemName}>{`$2`}</Text>
+          </View>
+          <View style={[styles.cartItem, styles.priceView]}>
+            <Text style={styles.label}>{'Total'}</Text>
+            <Text style={styles.itemName}>{`$${cartPrice + 2}`}</Text>
+          </View>
+          <CustomButton
+            title={'Proceed to Checkout'}
+            isFilled={true}
+            onClick={checkout}
+            buttonStyles={styles.btnStyle}
+          />
+        </View>
+      ) : null}
+    </>
+  );
+};
+
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: COLORS.white,
     paddingVertical: 30,
-    paddingHorizontal: 20,
   },
   headerIcons: {
+    marginTop: DeviceInfo.hasNotch() ? 25 : 0,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 20,
   },
   backIcon: {
     width: 35,
@@ -163,6 +176,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 20,
+  },
+  priceView: {
+    marginBottom: 10,
   },
   label: {
     fontSize: scaler(12),
@@ -188,6 +205,7 @@ const styles = StyleSheet.create({
   },
   itemPrice: {
     fontWeight: '300',
+    marginTop: 5,
   },
   addNremove: {
     flexDirection: 'row',
@@ -208,16 +226,17 @@ const styles = StyleSheet.create({
   totalContainer: {
     marginHorizontal: 10,
     paddingHorizontal: 10,
-    paddingVertical: 30,
+    paddingVertical: 20,
     borderRadius: 20,
     backgroundColor: COLORS.lightGray,
   },
   totalStickToBottom: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 90,
   },
   totalAlignWithFlatList: {
     marginTop: 30,
+    marginBottom: DeviceInfo.hasNotch() ? 10 : 30,
   },
   btnStyle: {
     marginTop: 30,
