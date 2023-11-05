@@ -2,21 +2,32 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   SafeAreaView,
+  StatusBar,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useCallback} from 'react';
 import ProductSelector from '../redux/ducks/products/product-selector';
 import {COLORS} from '../assets';
 import scaler from '../utils/scaler';
+import {useFocusEffect} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 
 const FavouriteScreen = () => {
   const favProducts = ProductSelector.favData();
-  console.log('favProducts =>', favProducts);
+
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle('dark-content');
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor(COLORS.white);
+      }
+    }, []),
+  );
 
   const renderProducts = ({item}: any) => {
     return (
@@ -35,6 +46,7 @@ const FavouriteScreen = () => {
   };
   return (
     <View style={styles.mainContainer}>
+      <StatusBar backgroundColor={COLORS.white} />
       <View style={styles.favProducts}>
         <FlatList
           showsVerticalScrollIndicator={false}

@@ -2,6 +2,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -88,7 +89,7 @@ const BuyNow = () => {
           onPress={() => navigation.dispatch(StackActions.pop())}>
           <Image source={IMAGES.backArrow} style={styles.backIcon} />
         </TouchableOpacity>
-        <Text style={styles.category}>{'Buy Now'}</Text>
+        <Text style={styles.heading}>{'Buy Now'}</Text>
       </View>
       <View style={styles.cartProducts}>{renderItem({item: productItem})}</View>
 
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: COLORS.white,
-    paddingVertical: 30,
+    paddingVertical: Platform.OS === 'ios' ? 30 : 0,
     paddingHorizontal: 20,
   },
   headerIcons: {
@@ -151,10 +152,11 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
   },
-  category: {
+  heading: {
     marginLeft: 10,
     fontSize: scaler(14),
     fontWeight: '300',
+    color: COLORS.black,
   },
   cartProducts: {
     marginTop: 20,
@@ -179,6 +181,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   itemName: {
+    color: COLORS.black,
     fontSize: scaler(12),
     fontWeight: '400',
     maxWidth: width * 0.5,

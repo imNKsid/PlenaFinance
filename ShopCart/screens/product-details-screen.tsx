@@ -1,17 +1,20 @@
 import {
   Dimensions,
   Image,
+  Platform,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
 import {
   RouteProp,
   StackActions,
+  useFocusEffect,
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
@@ -38,12 +41,21 @@ type ParamList = {
 type ProductDetailsScreenRouteProp = RouteProp<ParamList, 'ProductDetails'>;
 
 const ProductDetails = () => {
-  const navigation = useNavigation();
   const routes = useRoute<ProductDetailsScreenRouteProp>();
+  const navigation = useNavigation();
 
   const cartData = ProductSelector.cartData();
 
   const [productItem, setProductItem] = useState({}) as any;
+
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle('dark-content');
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor(COLORS.white);
+      }
+    }, []),
+  );
 
   useEffect(() => {
     if (routes?.params?.item) {
@@ -53,29 +65,6 @@ const ProductDetails = () => {
 
   return (
     <View style={styles.mainContainer}>
-      <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
-        <View style={styles.subContainer}>
-          <RenderTop cartData={cartData} productItem={productItem} />
-        </View>
-
-        <View style={styles.imageBanner}>
-          <RenderSwiperImages productItem={productItem} />
-        </View>
-
-        <View style={styles.subContainer}>
-          <RenderBottom productItem={productItem} />
-        </View>
-      </ScrollView>
-    </View>
-  );
-};
-
-export default ProductDetails;
-
-const RenderTop = ({cartData, productItem}: any) => {
-  const navigation = useNavigation();
-  return (
-    <>
       <View style={styles.headerIcons}>
         <TouchableOpacity
           onPress={() => navigation.dispatch(StackActions.pop())}
@@ -93,6 +82,28 @@ const RenderTop = ({cartData, productItem}: any) => {
           ) : null}
         </TouchableOpacity>
       </View>
+      <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
+        <View style={styles.subContainer}>
+          <RenderTop productItem={productItem} />
+        </View>
+
+        <View style={styles.imageBanner}>
+          <RenderSwiperImages productItem={productItem} />
+        </View>
+
+        <View style={styles.subContainer}>
+          <RenderBottom productItem={productItem} />
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default ProductDetails;
+
+const RenderTop = ({productItem}: any) => {
+  return (
+    <>
       <Text style={styles.category}>{productItem?.category}</Text>
       <Text style={styles.itemName}>{productItem?.title}</Text>
       <StarRatingDisplay
@@ -184,11 +195,17 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: COLORS.white,
-    paddingVertical: 30,
+    paddingVertical: Platform.OS === 'android' ? 0 : 30,
   },
   subContainer: {paddingHorizontal: 20},
   headerIcons: {
-    marginTop: DeviceInfo.hasNotch() ? 20 : 0,
+    paddingHorizontal: 20,
+    marginTop:
+      Platform.OS === 'android'
+        ? 10
+        : DeviceInfo.hasNotch() && Platform.OS === 'ios'
+        ? 20
+        : 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

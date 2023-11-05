@@ -2,6 +2,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -10,9 +11,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
-import {StackActions, useNavigation} from '@react-navigation/native';
+import {
+  StackActions,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import Toast from 'react-native-simple-toast';
 
 import {dispatch} from '../redux/store/store';
@@ -27,6 +32,15 @@ const {width, height} = Dimensions.get('window');
 const HomeScreen = () => {
   const productsList = ProductSelector.productsData();
   const cartData = ProductSelector.cartData();
+
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle('light-content');
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor(COLORS.primaryBlue);
+      }
+    }, []),
+  );
 
   useEffect(() => {
     dispatch<any>(ProductThunk.fetchAllProducts());
@@ -103,8 +117,6 @@ const BottomSection = ({productsList}: any) => {
   const navigation = useNavigation();
 
   const renderDiscounts = ({item}: any) => {
-    console.log('item =>', item);
-
     return (
       <View style={styles.discountContainer}>
         <Image source={{uri: item?.thumbnail}} style={styles.productImage} />
@@ -221,7 +233,12 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   nameNcart: {
-    marginTop: DeviceInfo.hasNotch() ? 60 : 40,
+    marginTop:
+      Platform.OS === 'android'
+        ? 20
+        : DeviceInfo.hasNotch() && Platform.OS === 'ios'
+        ? 60
+        : 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -253,9 +270,10 @@ const styles = StyleSheet.create({
   searchBar: {
     borderRadius: 30,
     paddingHorizontal: 25,
-    paddingVertical: 18,
-    marginTop: DeviceInfo.hasNotch() ? 55 : 35,
+    paddingVertical: Platform.OS === 'android' ? 5 : 18,
+    marginTop: DeviceInfo.hasNotch() && Platform.OS === 'ios' ? 55 : 35,
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.darkBlue,
   },
   searchIcon: {
@@ -346,7 +364,7 @@ const styles = StyleSheet.create({
   },
   productItem: {
     width: width * 0.43,
-    height: DeviceInfo.hasNotch() ? height * 0.22 : height * 0.29,
+    height: 200,
     borderRadius: 10,
     backgroundColor: COLORS.primaryGray,
     marginTop: DeviceInfo.hasNotch() ? 25 : 20,

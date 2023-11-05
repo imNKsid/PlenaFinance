@@ -2,14 +2,20 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React from 'react';
+import React, {useCallback} from 'react';
 
-import {StackActions, useNavigation} from '@react-navigation/native';
+import {
+  StackActions,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import Toast from 'react-native-simple-toast';
 
 import {CustomButton} from '../components';
@@ -26,6 +32,15 @@ const Cart = () => {
   const navigation = useNavigation();
 
   const cartData = ProductSelector.cartData();
+
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle('dark-content');
+      if (Platform.OS === 'android') {
+        StatusBar.setBackgroundColor(COLORS.white);
+      }
+    }, []),
+  );
 
   const renderItem = ({item}: any) => {
     return (
@@ -67,7 +82,7 @@ const Cart = () => {
           onPress={() => navigation.dispatch(StackActions.pop())}>
           <Image source={IMAGES.backArrow} style={styles.backIcon} />
         </TouchableOpacity>
-        <Text style={styles.category}>{`Shopping Cart ${
+        <Text style={styles.heading}>{`Shopping Cart ${
           cartData.length > 0 ? `(${cartData.length})` : ''
         }`}</Text>
       </View>
@@ -97,7 +112,9 @@ export default Cart;
 const RenderEmptyComponent = () => {
   return (
     <View style={styles.noDataFound}>
-      <Text style={styles.noDataText}>{'Nothing in Cart. Go add some!'}</Text>
+      <Text style={styles.noDataText}>
+        {'Nothing in Cart. Hurry, add some!'}
+      </Text>
     </View>
   );
 };
@@ -154,7 +171,12 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   headerIcons: {
-    marginTop: DeviceInfo.hasNotch() ? 25 : 0,
+    marginTop:
+      Platform.OS === 'android'
+        ? -20
+        : DeviceInfo.hasNotch() && Platform.OS === 'ios'
+        ? 25
+        : 0,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -163,14 +185,15 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
   },
-  category: {
+  heading: {
     marginLeft: 10,
     fontSize: scaler(14),
     fontWeight: '300',
+    color: COLORS.black,
   },
   cartProducts: {
     marginTop: 20,
-    marginBottom: height * 0.12,
+    marginBottom: DeviceInfo.hasNotch() && Platform.OS === 'ios' ? 130 : 50,
   },
   cartItem: {
     flexDirection: 'row',
@@ -202,6 +225,7 @@ const styles = StyleSheet.create({
     fontSize: scaler(12),
     fontWeight: '400',
     maxWidth: width * 0.5,
+    color: COLORS.black,
   },
   itemPrice: {
     fontWeight: '300',
