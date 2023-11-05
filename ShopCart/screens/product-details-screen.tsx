@@ -25,6 +25,7 @@ import {CustomButton} from '../components';
 import {dispatch} from '../redux/store/store';
 import ProductThunk from '../redux/ducks/products/product-thunk';
 import ProductSelector from '../redux/ducks/products/product-selector';
+import DeviceInfo from 'react-native-device-info';
 
 const {width, height} = Dimensions.get('window');
 
@@ -77,7 +78,8 @@ const RenderTop = ({cartData, productItem}: any) => {
     <>
       <View style={styles.headerIcons}>
         <TouchableOpacity
-          onPress={() => navigation.dispatch(StackActions.pop())}>
+          onPress={() => navigation.dispatch(StackActions.pop())}
+          hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
           <Image source={IMAGES.backArrow} style={styles.backIcon} />
         </TouchableOpacity>
         <TouchableOpacity
@@ -186,6 +188,7 @@ const styles = StyleSheet.create({
   },
   subContainer: {paddingHorizontal: 20},
   headerIcons: {
+    marginTop: DeviceInfo.hasNotch() ? 20 : 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -241,7 +244,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: width * 0.5,
+    width: DeviceInfo.hasNotch() ? width * 0.44 : width * 0.5,
     alignItems: 'center',
   },
   pricePerKg: {

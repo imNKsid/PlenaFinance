@@ -18,6 +18,7 @@ import {dispatch} from '../redux/store/store';
 import ProductThunk from '../redux/ducks/products/product-thunk';
 import {COLORS, IMAGES} from '../assets';
 import scaler from '../utils/scaler';
+import DeviceInfo from 'react-native-device-info';
 
 const {width, height} = Dimensions.get('window');
 
@@ -153,6 +154,7 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
   },
   headerIcons: {
+    marginTop: DeviceInfo.hasNotch() ? 25 : 0,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -234,7 +236,7 @@ const styles = StyleSheet.create({
   },
   totalAlignWithFlatList: {
     marginTop: 30,
-    marginBottom: 30,
+    marginBottom: DeviceInfo.hasNotch() ? 10 : 30,
   },
   btnStyle: {
     marginTop: 30,

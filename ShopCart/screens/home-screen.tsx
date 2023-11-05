@@ -2,6 +2,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -19,6 +20,7 @@ import ProductThunk from '../redux/ducks/products/product-thunk';
 import {COLORS, IMAGES} from '../assets';
 import scaler from '../utils/scaler';
 import ProductSelector from '../redux/ducks/products/product-selector';
+import DeviceInfo from 'react-native-device-info';
 
 const {width, height} = Dimensions.get('window');
 
@@ -33,8 +35,10 @@ const HomeScreen = () => {
   return (
     <View style={styles.mainContainer}>
       <StatusBar backgroundColor={COLORS.primaryBlue} />
-      <TopSection cartData={cartData} />
-      <BottomSection productsList={productsList} />
+      <ScrollView style={{flex: 1}}>
+        <TopSection cartData={cartData} />
+        <BottomSection productsList={productsList} />
+      </ScrollView>
     </View>
   );
 };
@@ -98,6 +102,27 @@ const TopSection = ({cartData}: any) => {
 const BottomSection = ({productsList}: any) => {
   const navigation = useNavigation();
 
+  const renderDiscounts = ({item}: any) => {
+    console.log('item =>', item);
+
+    return (
+      <View style={styles.discountContainer}>
+        <Image source={{uri: item?.thumbnail}} style={styles.productImage} />
+        <View style={styles.textView}>
+          <Text style={styles.discountText1}>{'Get'}</Text>
+          <Text style={[styles.discountText1, styles.discountText2]}>
+            {`${item?.discountPercentage}% OFF`}
+          </Text>
+          <Text
+            style={[
+              styles.discountText1,
+              styles.discountText3,
+            ]}>{`on ${item?.brand} brand`}</Text>
+        </View>
+      </View>
+    );
+  };
+
   const toggleHeart = (item: any) => {
     if (item?.favorite) {
       dispatch<any>(ProductThunk.removeFromFav(item));
@@ -159,18 +184,28 @@ const BottomSection = ({productsList}: any) => {
 
   return (
     <View style={styles.bottomContainer}>
-      <Text style={styles.recommendedText}>Recommended</Text>
-      <View style={styles.products}>
+      <View style={styles.discountList}>
         <FlatList
-          showsVerticalScrollIndicator={false}
-          numColumns={2}
-          columnWrapperStyle={{
-            justifyContent: 'space-between',
-            marginLeft: 20,
-          }}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
           data={productsList}
-          renderItem={renderProducts}
+          renderItem={renderDiscounts}
         />
+      </View>
+      <View style={styles.recommendedSection}>
+        <Text style={styles.recommendedText}>Recommended</Text>
+        <View style={styles.products}>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            numColumns={2}
+            columnWrapperStyle={{
+              justifyContent: 'space-between',
+              marginLeft: 20,
+            }}
+            data={productsList}
+            renderItem={renderProducts}
+          />
+        </View>
       </View>
     </View>
   );
@@ -182,11 +217,11 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: COLORS.primaryBlue,
-    flex: 0.35,
     paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   nameNcart: {
-    marginTop: 40,
+    marginTop: DeviceInfo.hasNotch() ? 60 : 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -219,7 +254,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     paddingHorizontal: 25,
     paddingVertical: 18,
-    marginTop: 35,
+    marginTop: DeviceInfo.hasNotch() ? 55 : 35,
     flexDirection: 'row',
     backgroundColor: COLORS.darkBlue,
   },
@@ -235,7 +270,7 @@ const styles = StyleSheet.create({
     // fontWeight: '500',
   },
   addressNtime: {
-    marginTop: 30,
+    marginTop: DeviceInfo.hasNotch() ? 50 : 30,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -264,8 +299,43 @@ const styles = StyleSheet.create({
   bottomContainer: {
     flex: 0.65,
     paddingTop: 20,
-    paddingHorizontal: 20,
     backgroundColor: COLORS.white,
+  },
+  discountList: {
+    marginBottom: 30,
+  },
+  discountContainer: {
+    marginTop: 20,
+    width: width * 0.7,
+    height: DeviceInfo.hasNotch() ? height * 0.13 : height * 0.15,
+    marginLeft: 20,
+    backgroundColor: COLORS.yellow,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 20,
+  },
+  productImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 10,
+  },
+  textView: {
+    marginLeft: 40,
+  },
+  discountText1: {
+    color: COLORS.white,
+    fontSize: scaler(18),
+    fontWeight: '300',
+  },
+  discountText2: {
+    fontWeight: '800',
+  },
+  discountText3: {
+    fontSize: scaler(14),
+  },
+  recommendedSection: {
+    paddingHorizontal: 20,
   },
   recommendedText: {
     color: COLORS.textColor,
@@ -276,10 +346,10 @@ const styles = StyleSheet.create({
   },
   productItem: {
     width: width * 0.43,
-    height: height * 0.29,
+    height: DeviceInfo.hasNotch() ? height * 0.22 : height * 0.29,
     borderRadius: 10,
     backgroundColor: COLORS.primaryGray,
-    marginTop: 20,
+    marginTop: DeviceInfo.hasNotch() ? 25 : 20,
     paddingBottom: 10,
   },
   heartIcon: {

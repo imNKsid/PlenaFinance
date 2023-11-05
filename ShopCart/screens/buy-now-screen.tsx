@@ -20,6 +20,7 @@ import Toast from 'react-native-simple-toast';
 import {CustomButton} from '../components';
 import {COLORS, IMAGES} from '../assets';
 import scaler from '../utils/scaler';
+import DeviceInfo from 'react-native-device-info';
 
 const {width, height} = Dimensions.get('window');
 
@@ -142,6 +143,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   headerIcons: {
+    marginTop: DeviceInfo.hasNotch() ? 25 : 0,
     flexDirection: 'row',
     alignItems: 'center',
   },
