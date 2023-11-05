@@ -45,8 +45,6 @@ const TopSection = ({cartData}: any) => {
   const navigation = useNavigation();
   const [searchText, setSearchText] = useState('');
 
-  console.log('cartData =>', cartData);
-
   return (
     <View style={styles.headerContainer}>
       <View style={styles.nameNcart}>
@@ -54,7 +52,6 @@ const TopSection = ({cartData}: any) => {
         <TouchableOpacity
           onPress={() => navigation.dispatch(StackActions.push('Cart'))}
           hitSlop={{top: 30, left: 20, bottom: 20, right: 20}}>
-          {/* style={{flexDirection: 'row'}}> */}
           <Image source={IMAGES.cart} style={styles.cartImg} />
           {cartData?.length > 0 ? (
             <View style={styles.cartItemsView}>

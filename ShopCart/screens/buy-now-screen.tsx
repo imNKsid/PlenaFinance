@@ -80,11 +80,6 @@ const BuyNow = () => {
     );
   };
 
-  const checkout = () => {
-    Toast.show('Successfully Purchased', Toast.SHORT);
-    navigation.dispatch(StackActions.popToTop());
-  };
-
   return (
     <View style={styles.mainContainer}>
       <View style={styles.headerIcons}>
@@ -96,35 +91,48 @@ const BuyNow = () => {
       </View>
       <View style={styles.cartProducts}>{renderItem({item: productItem})}</View>
 
-      <View style={styles.totalContainer}>
-        <View style={styles.cartItem}>
-          <Text style={styles.label}>{'Subtotal'}</Text>
-          <Text style={styles.itemName}>
-            {`$${productItem?.price * productCount}`}
-          </Text>
-        </View>
-        <View style={styles.cartItem}>
-          <Text style={styles.label}>{'Delivery'}</Text>
-          <Text style={styles.itemName}>{`$2`}</Text>
-        </View>
-        <View style={styles.cartItem}>
-          <Text style={styles.label}>{'Total'}</Text>
-          <Text style={styles.itemName}>{`$${
-            productItem?.price * productCount + 2
-          }`}</Text>
-        </View>
-        <CustomButton
-          title={'Proceed to Checkout'}
-          isFilled={true}
-          onClick={checkout}
-          buttonStyles={styles.btnStyle}
-        />
-      </View>
+      <RenderPriceView productItem={productItem} productCount={productCount} />
     </View>
   );
 };
 
 export default BuyNow;
+
+const RenderPriceView = ({productItem, productCount}: any) => {
+  const navigation = useNavigation();
+
+  const checkout = () => {
+    Toast.show('Successfully Purchased', Toast.SHORT);
+    navigation.dispatch(StackActions.popToTop());
+  };
+
+  return (
+    <View style={styles.totalContainer}>
+      <View style={[styles.cartItem, styles.priceView]}>
+        <Text style={styles.label}>{'Subtotal'}</Text>
+        <Text style={styles.itemName}>
+          {`$${productItem?.price * productCount}`}
+        </Text>
+      </View>
+      <View style={[styles.cartItem, styles.priceView]}>
+        <Text style={styles.label}>{'Delivery'}</Text>
+        <Text style={styles.itemName}>{`$2`}</Text>
+      </View>
+      <View style={[styles.cartItem, styles.priceView]}>
+        <Text style={styles.label}>{'Total'}</Text>
+        <Text style={styles.itemName}>{`$${
+          productItem?.price * productCount + 2
+        }`}</Text>
+      </View>
+      <CustomButton
+        title={'Proceed to Checkout'}
+        isFilled={true}
+        onClick={checkout}
+        buttonStyles={styles.btnStyle}
+      />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -152,7 +160,6 @@ const styles = StyleSheet.create({
   },
   cartItem: {
     marginVertical: 10,
-    marginHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -167,7 +174,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   nameNprice: {
-    marginLeft: 10,
+    marginLeft: 15,
   },
   itemName: {
     fontSize: scaler(12),
@@ -190,10 +197,10 @@ const styles = StyleSheet.create({
   },
   totalContainer: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 90,
     marginHorizontal: 10,
     paddingHorizontal: 10,
-    paddingVertical: 30,
+    paddingVertical: 20,
     borderRadius: 20,
     backgroundColor: COLORS.lightGray,
   },
@@ -202,8 +209,12 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     color: COLORS.lightBlue,
   },
+  priceView: {
+    marginTop: 5,
+    marginHorizontal: 20,
+  },
   btnStyle: {
-    marginTop: 30,
+    marginTop: 20,
     width: width * 0.9,
   },
 });
